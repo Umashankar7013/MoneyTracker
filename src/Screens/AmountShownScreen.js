@@ -51,7 +51,7 @@ export const AmountShownScreen = () => {
           <View style={styles.header}>
             <Text style={styles.headerText}>Date : {item}</Text>
             <Text style={styles.totalAmountText}>
-              Total Amount : {dailyTotalAmounts[item]?.totalAmount}
+              Total Amount : {dailyTotalAmounts[item]['totalAmount']}
               {' /-'}
             </Text>
             <View style={styles.differentPaymentMethodsView}>
@@ -82,7 +82,7 @@ export const AmountShownScreen = () => {
                   ...styles.text1,
                   ...{color: 'green'},
                 }}>
-                {' Rs.'} {data[item][item1].totalAmount}
+                {' Rs.'} {data[item][item1]['totalAmount']}
                 {' /-'}
               </Text>
               <Text style={styles.text1}>
