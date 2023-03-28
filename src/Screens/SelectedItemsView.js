@@ -136,7 +136,15 @@ const SelectedItemsView = () => {
                 }}
                 key={index}
                 onPress={() => setSelectedPaymentMethod(item)}>
-                <Text style={styles.modalElements}>{item}</Text>
+                <Text
+                  style={{
+                    ...styles.modalElements,
+                    ...{
+                      color: item === selectedPaymentMethod ? 'white' : 'black',
+                    },
+                  }}>
+                  {item}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -176,12 +184,12 @@ const styles = StyleSheet.create({
     marginVertical: 7,
   },
   itemNameText: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     color: 'black',
   },
   itemPriceText: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     marginTop: 3,
     color: 'black',
@@ -242,7 +250,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     alignSelf: 'center',
     marginTop: 9,
-    fontSize: 16,
+    fontSize: 14,
     borderRadius: 8,
     fontWeight: 'bold',
     color: 'white',

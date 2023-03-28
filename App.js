@@ -10,6 +10,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import auth from '@react-native-firebase/auth';
 import {LoginPage} from './src/Screens/LoginPage';
 import {LogoutScreen} from './src/Screens/LogoutScreen';
+import StatisticsScreen from './src/Screens/StatisticsScreen';
 
 const Tab = createBottomTabNavigator();
 export const context = React.createContext();
@@ -80,7 +81,13 @@ const App = () => {
                   iconName = focused ? 'add-circle' : 'add-circle-outline';
                 } else if (route.name === 'Amount') {
                   iconName = focused ? 'wallet' : 'wallet-outline';
-                } else if (route.name === 'Logout') {
+                }
+                // else if (route.name === 'Statistics') {
+                //   iconName = focused
+                //     ? 'stats-chart-sharp'
+                //     : 'stats-chart-outline';
+                // }
+                else if (route.name === 'Logout') {
                   iconName = focused ? 'log-out' : 'log-out-outline';
                 }
                 return <Icon name={iconName} color={color} size={22} />;
@@ -108,6 +115,13 @@ const App = () => {
                 headerShown: false,
               }}
             />
+            {/* <Tab.Screen
+              name="Statistics"
+              component={StatisticsScreen}
+              options={{
+                headerShown: false,
+              }}
+            /> */}
             <Tab.Screen
               name="Logout"
               component={LogoutScreen}

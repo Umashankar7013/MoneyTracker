@@ -27,7 +27,7 @@ export class FireBaseModel {
       .child(time + '/')
       .set({
         totalAmount: totalAmount,
-        selectedPaymentMethod: selectedPaymentMethod,
+        paymentMethod: selectedPaymentMethod,
       });
   };
 

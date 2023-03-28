@@ -28,29 +28,26 @@ const FilterItem = ({data, onchange = () => {}, style}) => {
           return (
             <TouchableOpacity
               style={{
-                height: 50,
                 borderWidth: 1,
                 marginRight: 10,
                 borderRadius: 20,
                 paddingHorizontal: 10,
                 justifyContent: 'center',
                 backgroundColor: filter[item.item] ? 'cornsilk' : 'white',
+                paddingVertical: 10,
               }}
-              onPress={e => {
+              onPress={() => {
                 if (filter[item.item]) {
                   setFilter(prev => {
                     const copy = {...prev};
-
                     delete copy[item.item];
-                    // onchange(filter);
                     return copy;
                   });
                 } else {
                   setFilter({...filter, [item.item]: data[item.item]});
-                  // onchange({...filter, [item.item]: data[item.item]});
                 }
               }}>
-              <Text style={{fontSize: 10, fontWeight: 'bold', color: 'black'}}>
+              <Text style={{fontSize: 12, fontWeight: 'bold', color: 'black'}}>
                 {item.item}
               </Text>
             </TouchableOpacity>
@@ -100,7 +97,7 @@ export const Home = () => {
     database()
       .ref(user.uid + '/Items/')
       .on('value', snap => {
-        setItemsData(snap.val());
+        setItemsData(snap.val() || {});
       });
 
     database()
@@ -137,7 +134,6 @@ export const Home = () => {
       <FilterItem
         data={itemsData}
         onchange={e => {
-          // setItemsData(e);
           setFilter(e);
         }}
         style={{paddingHorizontal: 10, marginTop: 10}}
@@ -181,7 +177,6 @@ export const Home = () => {
             );
           })}
         </ScrollView>
-
         {selectedItems.length > 0 && <SelectedItemsView />}
       </View>
     </View>
