@@ -6,19 +6,24 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import database from '@react-native-firebase/database';
 import SelectedItemsView from './SelectedItemsView';
-import {context} from '../../App';
-import {Models} from '../Model/FireBaseModel';
-import LoadingAnimationComponent from '../Components/LoadingAnimationComponent';
-import Icon from 'react-native-vector-icons/Ionicons';
-import NoItemsAnimationComponent from '../Components/NoItemsAnimationComponent';
+import {LoadingAnimationComponent} from '../components/LoadingAnimationComponent';
+import {NoItemsAnimationComponent} from '../components/NoItemsAnimationComponent';
 import {FlatList} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {setSelectedItems} from '../redux/selectedItemsSlice';
+import {setpickerItems} from '../redux/pickerItemsSlice';
+import {Models} from '../model/FireBaseModel';
+import {dailyAmount, dailyTotalAmount} from '../redux/dailyAmountSlice';
 
 const FilterItem = ({data, onchange = () => {}, style}) => {
   const [filter, setFilter] = useState({});
-  onchange(filter);
+  useEffect(() => {
+    onchange(filter);
+  }, [filter]);
+
   return (
     <View style={{...style, margin: 10}}>
       <FlatList
@@ -61,17 +66,12 @@ const isObjectEmpty = objectName => {
   return Object.keys(objectName).length === 0;
 };
 export const Home = () => {
+  const dispatch = useDispatch();
   const [itemsData, setItemsData] = useState({});
   const [filter, setFilter] = useState({});
-  const {
-    selectedItems,
-    setSelectedItems,
-    setPickerItems,
-    setData,
-    setDailyTotalAmounts,
-    user,
-  } = useContext(context);
   const [loading, setLoading] = useState(true);
+  const user = useSelector(state => state.user.value);
+  const selectedItems = useSelector(state => state.selectedItems.value);
 
   const selectedItemsHandler = data => {
     let flag = 0;
@@ -82,32 +82,35 @@ export const Home = () => {
       }
     });
     if (flag === 1) return;
-    setSelectedItems([...selectedItems, data]);
+    dispatch(setSelectedItems([...selectedItems, data]));
   };
 
   const getDataHandler = async () => {
     const data = await Models.dataStore.getTotalData(user.uid);
-    setData(data);
+    dispatch(dailyAmount(data || {}));
     const data1 = await Models.totalAmount.getTotalData(user.uid);
-    setDailyTotalAmounts(data1);
+    dispatch(dailyTotalAmount(data1 || {}));
     setLoading(false);
   };
 
   useEffect(() => {
-    database()
-      .ref(user.uid + '/Items/')
-      .on('value', snap => {
-        setItemsData(snap.val() || {});
-      });
+    if (user) {
+      database()
+        .ref(user?.displayName + '/Items/')
+        .on('value', snap => {
+          setItemsData(snap.val() || {});
+        });
 
-    database()
-      .ref(user.uid + '/Categories/')
-      .on('value', snap => {
-        if (snap.val()) setPickerItems(snap.val());
-      });
-
-    getDataHandler();
-  }, []);
+      database()
+        .ref(user?.displayName + '/Categories/')
+        .on('value', snap => {
+          if (snap.val()) {
+            dispatch(setpickerItems(snap.val()));
+          }
+        });
+      getDataHandler();
+    }
+  }, [user]);
 
   const arr = isObjectEmpty(filter)
     ? Object.keys(itemsData)
@@ -115,7 +118,7 @@ export const Home = () => {
 
   const sortArr = obj => {
     const arr = Object.keys(obj).sort((a, b) => {
-      if (Number(obj[a].itemPrice) > Number(obj[b].itemPrice)) {
+      if (Number(obj[a].itemPrice) < Number(obj[b].itemPrice)) {
         return -1;
       }
       if (Number(obj[a].itemPrice) > Number(obj[b].itemPrice)) {
@@ -129,7 +132,7 @@ export const Home = () => {
 
   return loading ? (
     <LoadingAnimationComponent />
-  ) : itemsData ? (
+  ) : itemsData && Object.keys(itemsData).length > 0 ? (
     <View style={{flex: 1}}>
       <FilterItem
         data={itemsData}
@@ -152,7 +155,6 @@ export const Home = () => {
                 <View style={styles.header} key={index}>
                   <Text style={styles.itemText}>{item}</Text>
                 </View>
-
                 {sortArr(itemsData[item]).map((item1, index1) => {
                   return (
                     <TouchableOpacity

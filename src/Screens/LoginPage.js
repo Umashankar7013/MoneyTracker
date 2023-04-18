@@ -43,7 +43,8 @@ export const LoginPage = ({navigation}) => {
     if (mail.length > 0 && password.length > 0) {
       const userLogin = auth()
         .signInWithEmailAndPassword(mail, password)
-        .then(() => {
+        .then(user => {
+          console.log(user);
           console.log('signed in succesfully');
         })
         .catch(error => {
@@ -71,6 +72,7 @@ export const LoginPage = ({navigation}) => {
         flexGrow: 1,
         justifyContent: 'center',
         paddingHorizontal: 30,
+        backgroundColor: 'white',
       }}>
       <View
         style={{

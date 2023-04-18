@@ -1,8 +1,8 @@
-import {StyleSheet, View} from 'react-native';
+import {View} from 'react-native';
 import React from 'react';
 import Lottie from 'lottie-react-native';
 
-const NoItemsAnimationComponent = () => {
+export const NoItemsAnimationComponent = () => {
   return (
     <View style={{flex: 1, backgroundColor: 'white'}}>
       <Lottie
@@ -13,7 +13,3 @@ const NoItemsAnimationComponent = () => {
     </View>
   );
 };
-
-export default NoItemsAnimationComponent;
-
-const styles = StyleSheet.create({});

@@ -7,18 +7,21 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useContext, useEffect, useRef, useState} from 'react';
-import NoOfItemsComponent from '../Components/NoOfItemsComponent';
-import {context} from '../../App';
-import {Models} from '../Model/FireBaseModel';
+import React, {useEffect, useState} from 'react';
+import {NoOfItemsComponent} from '../components/NoOfItemsComponent';
+import {Models} from '../model/FireBaseModel';
+import {useDispatch, useSelector} from 'react-redux';
+import {setSelectedItems} from '../redux/selectedItemsSlice';
+import {paymentMethods} from '../constants';
 
 const SelectedItemsView = () => {
-  const {selectedItems, setSelectedItems, paymentMethods, user} =
-    useContext(context);
   const [totalAmount, setTotalAmount] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const date = new Date();
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user.value);
+  const selectedItems = useSelector(state => state.selectedItems.value);
 
   const detailsSaveHandler = async () => {
     let currentDate = date.toDateString();
@@ -27,7 +30,7 @@ const SelectedItemsView = () => {
     let amount1;
 
     const data = await Models.totalAmount.particularDayData(
-      user.uid,
+      user?.displayName,
       currentDate,
     );
 
@@ -43,7 +46,7 @@ const SelectedItemsView = () => {
     else amount1 = data[selectedPaymentMethod];
 
     Models.totalAmount.DayTotalAmount(
-      user.uid,
+      user?.displayName,
       amount + totalAmount,
       currentDate,
       selectedPaymentMethod,
@@ -51,7 +54,7 @@ const SelectedItemsView = () => {
     );
 
     Models.dataStore.addDailyData(
-      user.uid,
+      user?.displayName,
       currentDate,
       time,
       totalAmount,
@@ -66,7 +69,7 @@ const SelectedItemsView = () => {
         array.splice(index, 1);
       }
     });
-    setSelectedItems(array);
+    dispatch(setSelectedItems(array));
   };
 
   useEffect(() => {
@@ -160,7 +163,7 @@ const SelectedItemsView = () => {
             }}
             onPress={() => {
               detailsSaveHandler(),
-                setSelectedItems([]),
+                dispatch(setSelectedItems([])),
                 setShowModal(false),
                 Alert.alert('Data Saved SuccesFully');
             }}

@@ -3,7 +3,7 @@ import React, {useContext, useState} from 'react';
 import {context} from '../../App';
 import {useEffect} from 'react';
 import moment from 'moment/moment';
-import NoItemsAnimationComponent from '../Components/NoItemsAnimationComponent';
+import {NoItemsAnimationComponent} from '../components/NoItemsAnimationComponent';
 
 const StatisticsScreen = () => {
   const {data} = useContext(context);

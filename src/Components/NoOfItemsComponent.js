@@ -1,9 +1,11 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React, {useContext, useRef, useState} from 'react';
-import {context} from '../../App';
+import React from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {setSelectedItems} from '../redux/selectedItemsSlice';
 
-const NoOfItemsComponent = ({index}) => {
-  const {selectedItems, setSelectedItems} = useContext(context);
+export const NoOfItemsComponent = ({index}) => {
+  const selectedItems = useSelector(state => state.selectedItems.value);
+  const dispatch = useDispatch();
 
   return (
     <View style={styles.container}>
@@ -15,7 +17,7 @@ const NoOfItemsComponent = ({index}) => {
             ...array[index],
             quantity: array[index].quantity > 1 ? array[index].quantity - 1 : 1,
           };
-          setSelectedItems(array);
+          dispatch(setSelectedItems(array));
         }}>
         <Text style={styles.symbolText}>-</Text>
       </TouchableOpacity>
@@ -25,15 +27,13 @@ const NoOfItemsComponent = ({index}) => {
         onPress={() => {
           let array = [...selectedItems];
           array[index] = {...array[index], quantity: array[index].quantity + 1};
-          setSelectedItems(array);
+          dispatch(setSelectedItems(array));
         }}>
         <Text style={styles.symbolText}>+</Text>
       </TouchableOpacity>
     </View>
   );
 };
-
-export default NoOfItemsComponent;
 
 const styles = StyleSheet.create({
   container: {

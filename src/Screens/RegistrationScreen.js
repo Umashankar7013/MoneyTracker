@@ -2,7 +2,6 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
   TouchableOpacity,
   ScrollView,
   Alert,
@@ -70,12 +69,14 @@ export const RegistrationScreen = () => {
     if (name.length !== 0 && mail.length !== 0 && password.length !== 0) {
       auth()
         .createUserWithEmailAndPassword(mail, password, name)
-
-        .then(
-          Alert.alert('Account Created Succesfully'),
-          console.log('User account created & signed in!'),
-          setLoginPageFlag(true),
-        )
+        .then(userCredential => {
+          userCredential.user.updateProfile({
+            displayName: name,
+          });
+          Alert.alert('Account Created Succesfully');
+          console.log('User account created & signed in!');
+          setLoginPageFlag(true);
+        })
         .catch(error => {
           if (error.code === 'auth/email-already-in-use') {
             Alert.alert('Email is already in use');
@@ -112,7 +113,7 @@ export const RegistrationScreen = () => {
           alignItems: 'center',
         }}>
         <EpicFloatingInput
-          placeholder="Enter your Name"
+          placeholder="Enter Shop Name"
           onChangeText={text => nameChangeHandler(text.trim())}
         />
         <View
@@ -122,7 +123,7 @@ export const RegistrationScreen = () => {
           <Text style={styles.nameValidateText}>{nameValidate}</Text>
         </View>
         <EpicFloatingInput
-          placeholder="Enter your Email Address"
+          placeholder="Enter Email Address"
           onChangeText={text => emailChangeHandler(text.trim())}
         />
         <View
@@ -132,7 +133,7 @@ export const RegistrationScreen = () => {
           <Text style={styles.nameValidateText}>{emailValidate}</Text>
         </View>
         <EpicFloatingInput
-          placeholder="choose your Password"
+          placeholder="Choose Password"
           onChangeText={text => passwordChangeHandler(text.trim())}
         />
         <View

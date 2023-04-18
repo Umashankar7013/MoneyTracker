@@ -9,16 +9,21 @@ import {
 } from 'react-native';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {Picker} from '@react-native-picker/picker';
-import {Models} from '../Model/FireBaseModel';
+import {Models} from '../model/FireBaseModel';
 import {context} from '../../App';
+import {useDispatch, useSelector} from 'react-redux';
+import {setCategory} from '../redux/categorySlice';
 
 export const AddItemsScreen = ({navigation}) => {
-  const {category, setCategory, pickerItems, user} = useContext(context);
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user.value);
+  const category = useSelector(state => state.category.value);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
+  const pickerItems = useSelector(state => state.pickerItems.value);
 
   const submitButtonHandler = () => {
-    Models.items.addNewItemHandler(user.uid, category, name, price);
+    Models.items.addNewItemHandler(user?.displayName, category, name, price);
     setName('');
     setPrice('');
     Alert.alert('Success...!', 'Item Added Succesfully');
@@ -32,7 +37,7 @@ export const AddItemsScreen = ({navigation}) => {
         <Picker
           style={{marginTop: -15}}
           selectedValue={category}
-          onValueChange={itemValue => setCategory(itemValue)}>
+          onValueChange={itemValue => dispatch(setCategory(itemValue))}>
           {Object.keys(pickerItems).map((item, index) => (
             <Picker.Item
               label={pickerItems[item]}

@@ -1,66 +1,77 @@
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
-import React, {useContext, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import database from '@react-native-firebase/database';
-import {context} from '../../App';
-import NoItemsAnimationComponent from '../Components/NoItemsAnimationComponent';
+import {NoItemsAnimationComponent} from '../components/NoItemsAnimationComponent';
 import {useState} from 'react';
+import {LoadingAnimationComponent} from '../components/LoadingAnimationComponent';
+import {useDispatch, useSelector} from 'react-redux';
+import {dailyAmount, dailyTotalAmount} from '../redux/dailyAmountSlice';
+import {paymentMethods} from '../constants';
 
 export const AmountShownScreen = () => {
-  const {
-    data,
-    setData,
-    dailyTotalAmounts,
-    setDailyTotalAmounts,
-    paymentMethods,
-    user,
-  } = useContext(context);
   const [filteredDataKeys, setFilteredDataKeys] = useState([]);
   const [loading, setLoading] = useState(false);
+  const user = useSelector(state => state.user.value);
+  const dailyAmountData = useSelector(
+    state => state.dailyAmount.value?.dailyAmount,
+  );
+  const dailyTotalAmounts = useSelector(
+    state => state.dailyAmount.value.totalAmount,
+  );
+  const dispatch = useDispatch();
 
   useEffect(() => {
     database()
-      .ref(user.uid + '/DailyCals/')
+      .ref(user?.displayName + '/DailyCals/')
       .on('value', snap => {
-        setData(snap.val() || {});
+        dispatch(dailyAmount(snap.val() || {}));
       });
 
     database()
-      .ref(user.uid + '/DailyTotalAmount/')
+      .ref(user?.displayName + '/DailyTotalAmount/')
       .on('value', snap => {
-        setDailyTotalAmounts(snap.val() || {});
+        dispatch(dailyTotalAmount(snap.val() || {}));
       });
   }, []);
 
   useEffect(() => {
     setLoading(true);
-    const filteredData = Object.keys(data)?.sort((a, b) => {
+    if (dailyAmountData) {
+      const filteredData = Object?.keys(dailyAmountData)?.sort((a, b) => {
+        if (a > b) return -1;
+        if (a < b) return 1;
+        if (a === b) return 0;
+      });
+      setFilteredDataKeys(filteredData || []);
+      setLoading(false);
+    }
+  }, [dailyAmountData]);
+
+  const timeSortHandler = item => {
+    return Object.keys(dailyAmountData?.[item])?.sort((a, b) => {
       if (a < b) return 1;
-      if (a > b) return -1;
-      if (a === b) return 0;
+      else if (a > b) return -1;
+      else if (a === b) return 0;
     });
-    setFilteredDataKeys(filteredData);
-    setLoading(false);
-  }, [data]);
+  };
 
   return loading ? (
-    <LoadingAnimationComponents />
-  ) : data ? (
+    <LoadingAnimationComponent />
+  ) : dailyAmountData && Object.keys(dailyAmountData).length > 0 ? (
     <ScrollView style={{backgroundColor: 'white'}}>
       {filteredDataKeys.map((item, index) => (
         <View key={index}>
           <View style={styles.header}>
             <Text style={styles.headerText}>Date : {item}</Text>
             <Text style={styles.totalAmountText}>
-              Total Amount : {dailyTotalAmounts[item]['totalAmount']}
-              {' /-'}
+              {`Total Amount : ${dailyTotalAmounts?.[item]?.['totalAmount']} /-`}
             </Text>
             <View style={styles.differentPaymentMethodsView}>
               {paymentMethods.map(
                 (method, index) =>
-                  dailyTotalAmounts[item][method] > 0 && (
+                  dailyTotalAmounts?.[item]?.[method] > 0 && (
                     <Text key={index} style={styles.paymentMethod}>
-                      {method} : {dailyTotalAmounts[item][method]}
-                      {' /-'}
+                      {`${method} : ${dailyTotalAmounts[item][method]} /-`}
                     </Text>
                   ),
               )}
@@ -71,22 +82,18 @@ export const AmountShownScreen = () => {
             <Text style={styles.tableHeader}>Amount</Text>
             <Text style={styles.tableHeader}>Method</Text>
           </View>
-          {Object.keys(data[item]).map((item1, index1) => (
+          {timeSortHandler(item)?.map((item1, index1) => (
             <View key={index1} style={styles.bodyView}>
-              <Text style={styles.text1}>
-                {index1 + 1 + '. '}
-                {item1}
-              </Text>
+              <Text style={styles.text1}>{`${index1 + 1}.${item1}`}</Text>
               <Text
                 style={{
                   ...styles.text1,
                   ...{color: 'green'},
                 }}>
-                {' Rs.'} {data[item][item1]['totalAmount']}
-                {' /-'}
+                {`Rs. ${dailyAmountData[item][item1]['totalAmount']} /-`}
               </Text>
               <Text style={styles.text1}>
-                {data[item][item1].paymentMethod}
+                {dailyAmountData[item][item1].paymentMethod}
               </Text>
             </View>
           ))}

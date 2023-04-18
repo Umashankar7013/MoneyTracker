@@ -1,8 +1,8 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {View} from 'react-native';
 import React from 'react';
 import Lottie from 'lottie-react-native';
 
-const NoInternetAnimation = () => {
+export const NoInternetAnimation = () => {
   return (
     <View style={{flex: 1, backgroundColor: 'white'}}>
       <Lottie
@@ -13,7 +13,3 @@ const NoInternetAnimation = () => {
     </View>
   );
 };
-
-export default NoInternetAnimation;
-
-const styles = StyleSheet.create({});
